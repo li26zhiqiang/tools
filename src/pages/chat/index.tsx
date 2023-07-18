@@ -11,6 +11,9 @@ import useMobile from '@/hooks/useMobile';
 import AllInput from './components/AllInput';
 import { ChatGpt, RequestChatOptions } from '@/types';
 import { chatStore, configStore, userStore } from '@/store';
+import { generateUUID } from '@utils/generateUUID';
+import { cloneDeep } from 'lodash';
+import moment from 'moment';
 
 export default function ChatPage() {
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -49,11 +52,35 @@ export default function ChatPage() {
         }
     }
 
-    async function getDialogue(vaule: string, type: string) {
-        const dialogue = chats.filter((c) => c.id === selectChatId)[0];
+    async function getDialogue(value: string, type: string) {
+        const chatArr = cloneDeep(chats).map((item) => {
+            const uuid = generateUUID();
+            let timestamp = moment().locale('zh-cn').format('YYYY-MM-DD HH:mm:ss');
+            console.log('item', item);
+            if (type === 'new' && item.id === selectChatId) {
+                item.data = [
+                    {
+                        id: uuid,
+                        dataTime: timestamp,
+                        requestOptions: {
+                            options: {
+                                model: config.model
+                            }
+                        },
+                        role: 'user',
+                        status: 'pass',
+                        text: value
+                    }
+                ];
+            } else if (type === 'old' && item.id === selectChatId) {
+            }
 
+            return item;
+        });
+
+        const dialogue = chatArr.filter((item) => item.id === selectChatId)[0];
         const params = {
-            message: { role: 'user', content: vaule },
+            message: { role: 'user', content: value },
             model: config.model
         };
 
@@ -69,21 +96,31 @@ export default function ChatPage() {
         if (resp) {
             //  如果是新对话
             if (type === 'new') {
-                const arr = chats.map((item, index) => {
+                const arr = chatArr.map((item, index) => {
+                    let timestamp = moment().locale('zh-cn').format('YYYY-MM-DD HH:mm:ss');
+
                     if (item.id === selectChatId) {
                         item.id = resp.chatId;
-                        // item.path = resp.chatId;
-                        // item.data = [
-                        //     {
-                        //         dateTime: '',
-                        //         id:
-                        //     }
-                        // ];
+                        item.path = resp.chatId;
+                        item.data = [
+                            ...item.data,
+                            {
+                                dataTime: timestamp,
+                                id: generateUUID(),
+                                requestOptions: {
+                                    options: {
+                                        model: config.model
+                                    }
+                                },
+                                role: 'assistant',
+                                status: 'pass',
+                                text: resp?.message
+                            }
+                        ];
                     }
                     return item;
                 });
                 setSelectChatId(resp.chatId);
-                console.log('arr', arr);
                 setChats(arr);
             }
         }
@@ -165,7 +202,7 @@ export default function ChatPage() {
         getChatMessage();
     }, []);
 
-    console.log('chats', chats);
+    console.log('config.model', config.model);
     return (
         <div className={styles.chatPage}>
             <Layout
