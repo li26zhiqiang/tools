@@ -1,0 +1,46 @@
+@border-color: rgba(5, 5, 5, 0.06);
+
+.accordion-menu-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 216px;
+    border-right: 1px solid @border-color;
+
+    &.collapsed {
+        width: 80px;
+
+        .top {
+            text-align: center;
+            padding-left: inherit;
+        }
+    }
+
+    .top {
+        height: 54px;
+        vertical-align: middle;
+        border-bottom: 1px solid @border-color;
+        line-height: 54px;
+        font-weight: 600;
+        padding-left: 28px;
+    }
+
+    .center {
+        flex: 1 1 0%;
+        overflow: hidden auto;
+    }
+
+    .bottom {
+        border-top: 1px solid @border-color;
+        font-size: 20px;
+        color: #006af5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 8px 8px;
+
+        .operation {
+            cursor: pointer;
+        }
+    }
+}

@@ -1,0 +1,90 @@
+.chatPage {
+    overflow: hidden;
+
+    .menuItem {
+        color: #191919;
+        padding: 12px;
+        border-radius: 4px;
+        height: 36px;
+        border: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+
+        &:hover {
+            color: #18b3b3;
+            border: 1px solid #18b3b3;
+            background-color: #f5f5f5;
+
+            .menuItem_options {
+                display: inline-block;
+            }
+        }
+
+        &_action {
+            border-color: #18b3b3;
+            color: #18b3b3;
+
+            .menuItem_options {
+                display: inline-block;
+            }
+        }
+
+        &_options {
+            margin-left: auto;
+            cursor: pointer;
+            display: none;
+        }
+
+        &_icon {
+            margin-right: 8px;
+        }
+        &_name {
+            font-size: 14px;
+            overflow: hidden; //超出的文本隐藏
+            text-overflow: ellipsis; //溢出用省略号显示
+            white-space: nowrap; //溢出不换行
+        }
+    }
+
+    &_container {
+        display: flex;
+        flex-direction: column;
+        box-sizing: content-box;
+        overflow: hidden;
+        height: calc(100vh - 56px);
+        position: relative;
+
+        &_one {
+            flex: 1 1;
+            width: 100%;
+            align-self: center;
+            overflow: auto;
+
+            &::-webkit-scrollbar {
+                display: none;
+            }
+        }
+
+        &_two {
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            background-color: #ffffff;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0;
+            box-sizing: border-box;
+            padding: 12px 0px 0px 0px;
+        }
+    }
+}
+
+.chatPage {
+    [class*='ant-pro-layout-content'] {
+        padding-block: 0 !important;
+        padding-inline-end: 0 !important;
+    }
+}

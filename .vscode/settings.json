@@ -1,0 +1,52 @@
+{
+    "eslint.autoFixOnSave": true, //  启用保存时自动修复,默认只支持.js文件
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    },
+    "eslint.options": {
+      "extensions": [".js", ".jsx", ".tsx", ".vue"]
+    },
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      "typescriptreact",
+      "vue",
+      "css",
+      "less",
+      "html", 
+      "json"
+    ],
+    "[html]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true
+    },
+    "[javascriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true
+    },
+    "[less]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true
+    },
+    "[css]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.formatOnSave": true
+    },
+  
+    "editor.tabSize": 4, // 重新设定tabsize
+    "prettier.semi": true, // 去掉代码结尾的分号
+    "prettier.singleQuote": true,
+    "[jsonc]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "eslint.format.enable": true // 使用带引号替代双引号
+  }
+  
