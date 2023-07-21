@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Button, Modal, Popconfirm, Space, Tabs, Select, message } from 'antd';
 import styles from './index.module.less';
 import Layout from '@/components/Layout';
-import { CommentOutlined, DeleteOutlined } from '@ant-design/icons';
+import { CommentOutlined, DeleteOutlined, FormOutlined } from '@ant-design/icons';
 import { generateChatInfo } from '@/utils';
 import { chatAsync } from '@/store/async';
 import ChatMessage from './components/ChatMessage';
@@ -14,6 +14,7 @@ import { chatStore, configStore, userStore } from '@/store';
 import { generateUUID } from '@utils/generateUUID';
 import { cloneDeep } from 'lodash';
 import moment from 'moment';
+import EditDialogue from './components/EditDialogue';
 
 export default function ChatPage() {
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -36,7 +37,17 @@ export default function ChatPage() {
                     marginRight: 0
                 }}
                 onClick={() => {
-                    // addChat();
+                    const arr = cloneDeep(chats);
+                    const uuid = generateUUID();
+                    arr.unshift({
+                        id: `new-dialogue-${uuid}`,
+                        name: '新建对话',
+                        path: `new-dialogue-${uuid}`,
+                        data: []
+                    });
+
+                    setChats(arr);
+                    setSelectChatId(`new-dialogue-${uuid}`);
                 }}
             >
                 新建对话
@@ -48,35 +59,95 @@ export default function ChatPage() {
         const resp = await chatAsync.fetchChatMessages();
 
         if (resp && resp.length !== 0) {
-            setChats(resp);
+            const arr = resp.map((item: any) => {
+                return {
+                    id: item?.chatId,
+                    name: item?.chatName,
+                    path: item?.chatId,
+                    data: item.messageList.map((msg: any) => {
+                        return {
+                            id: msg.id,
+                            role: msg.role,
+                            text: msg.content,
+                            dateTime: moment(msg.createTime).format('YYYY/MM/DD hh:mm:ss'),
+                            requestOptions: {
+                                options: {
+                                    model: config.model
+                                },
+                                prompt: msg.content
+                            }
+                        };
+                    })
+                };
+            });
+
+            if (arr.length > 0) {
+                setSelectChatId(arr[0]?.id);
+            }
+
+            setChats(arr);
         }
     }
 
-    async function getDialogue(value: string, type: string) {
-        const chatArr = cloneDeep(chats).map((item) => {
-            const uuid = generateUUID();
-            let timestamp = moment().locale('zh-cn').format('YYYY-MM-DD HH:mm:ss');
-            console.log('item', item);
-            if (type === 'new' && item.id === selectChatId) {
-                item.data = [
-                    {
-                        id: uuid,
-                        dataTime: timestamp,
-                        requestOptions: {
-                            options: {
-                                model: config.model
-                            }
+    function getDialogueItem(param: { timestamp: any; value: any }) {
+        const { timestamp, value } = param;
+        const userId = generateUUID();
+        const assistantId = generateUUID();
+
+        return {
+            dialogueArr: [
+                {
+                    id: userId,
+                    dateTime: timestamp,
+                    requestOptions: {
+                        options: {
+                            model: config.model
                         },
-                        role: 'user',
-                        status: 'pass',
-                        text: value
-                    }
-                ];
+                        prompt: value
+                    },
+                    role: 'user',
+                    status: 'pass',
+                    text: value
+                },
+                {
+                    id: assistantId,
+                    dateTime: timestamp,
+                    requestOptions: {
+                        options: {
+                            model: config.model
+                        },
+                        prompt: ''
+                    },
+                    role: 'assistant',
+                    status: 'loading',
+                    text: ''
+                }
+            ],
+            dialogueId: assistantId
+        };
+    }
+
+    async function getDialogue(value: string, type: string) {
+        let assistantId: any = null;
+        const chatArr = cloneDeep(chats).map((item) => {
+            let timestamp = moment().locale('zh-cn').format('YYYY-MM-DD HH:mm:ss');
+
+            if (type === 'new' && item.id === selectChatId) {
+                const { dialogueArr, dialogueId } = getDialogueItem({ timestamp, value });
+                const dialogueItem: any = dialogueArr;
+                assistantId = dialogueId;
+                item.data = [...dialogueItem];
             } else if (type === 'old' && item.id === selectChatId) {
+                const { dialogueArr, dialogueId } = getDialogueItem({ timestamp, value });
+                const dialogueItem: any = dialogueArr;
+                assistantId = dialogueId;
+                item.data = [...item.data, ...dialogueItem];
             }
 
             return item;
         });
+
+        setChats(chatArr);
 
         const dialogue = chatArr.filter((item) => item.id === selectChatId)[0];
         const params = {
@@ -95,34 +166,39 @@ export default function ChatPage() {
 
         if (resp) {
             //  如果是新对话
-            if (type === 'new') {
-                const arr = chatArr.map((item, index) => {
-                    let timestamp = moment().locale('zh-cn').format('YYYY-MM-DD HH:mm:ss');
+            const arr = chatArr.map((item, index) => {
+                let timestamp = moment().locale('zh-cn').format('YYYY-MM-DD HH:mm:ss');
 
-                    if (item.id === selectChatId) {
+                if (item.id === selectChatId) {
+                    if (type === 'new') {
                         item.id = resp.chatId;
                         item.path = resp.chatId;
-                        item.data = [
-                            ...item.data,
-                            {
-                                dataTime: timestamp,
+                    }
+
+                    item.data = cloneDeep(item.data).map((dialogueRecord) => {
+                        if (dialogueRecord.id === assistantId) {
+                            return {
+                                dateTime: timestamp,
                                 id: generateUUID(),
                                 requestOptions: {
                                     options: {
                                         model: config.model
-                                    }
+                                    },
+                                    prompt: value
                                 },
                                 role: 'assistant',
                                 status: 'pass',
                                 text: resp?.message
-                            }
-                        ];
-                    }
-                    return item;
-                });
-                setSelectChatId(resp.chatId);
-                setChats(arr);
-            }
+                            };
+                        }
+
+                        return dialogueRecord;
+                    });
+                }
+                return item;
+            });
+            setSelectChatId(resp.chatId);
+            setChats(arr);
         }
     }
 
@@ -138,57 +214,19 @@ export default function ChatPage() {
         } else {
             getDialogue(value, 'old');
         }
+    }
 
-        //  老对话聊天
+    async function delDialogue(item: any) {
+        const param = {
+            id: item.id,
+            name: item.name
+        };
 
-        // const resp = await chatAsync.sendChatMessages();
-        //     let userMessageId = generateUUID();
-        //     const requestOptions = {
-        //         prompt: vaule,
-        //         parentMessageId,
-        //         options: filterObjectNull({
-        //             ...config,
-        //             ...refurbishOptions?.requestOptions.options
-        //         })
-        //     };
-        //     const assistantMessageId = refurbishOptions?.id || generateUUID();
-        //     if (refurbishOptions?.requestOptions.parentMessageId && refurbishOptions?.id) {
-        //         userMessageId = '';
-        //         setChatDataInfo(selectChatId, assistantMessageId, {
-        //             status: 'loading',
-        //             role: 'assistant',
-        //             text: '',
-        //             dateTime: formatTime(),
-        //             requestOptions
-        //         });
-        //     } else {
-        //         setChatInfo(selectChatId, {
-        //             id: userMessageId,
-        //             text: vaule,
-        //             dateTime: formatTime(),
-        //             status: 'pass',
-        //             role: 'user',
-        //             requestOptions
-        //         });
-        //         setChatInfo(selectChatId, {
-        //             id: assistantMessageId,
-        //             text: '',
-        //             dateTime: formatTime(),
-        //             status: 'loading',
-        //             role: 'assistant',
-        //             requestOptions
-        //         });
-        //     }
-        //     // 取消fetch请求
-        //     const controller = new AbortController();
-        //     const signal = controller.signal;
-        //     setFetchController(controller);
-        //     serverChatCompletions({
-        //         requestOptions,
-        //         signal,
-        //         userMessageId,
-        //         assistantMessageId
-        //     });
+        const resp = await chatAsync.delUserDialogue(param);
+
+        if (resp) {
+            getChatMessage();
+        }
     }
 
     // 当前聊天记录
@@ -202,7 +240,6 @@ export default function ChatPage() {
         getChatMessage();
     }, []);
 
-    console.log('config.model', config.model);
     return (
         <div className={styles.chatPage}>
             <Layout
@@ -227,6 +264,15 @@ export default function ChatPage() {
                         </Space>
                     );
                 }}
+                menuProps={{
+                    onClick: (r) => {
+                        const id = r.key.replace('/', '');
+
+                        if (selectChatId !== id) {
+                            setSelectChatId(id);
+                        }
+                    }
+                }}
                 menuItemRender={(item, dom) => {
                     const className =
                         item.id === selectChatId ? `${styles.menuItem} ${styles.menuItem_action}` : styles.menuItem;
@@ -238,12 +284,19 @@ export default function ChatPage() {
                             </span>
                             <span className={styles.menuItem_name}>{item.name}</span>
                             <div className={styles.menuItem_options}>
+                                <EditDialogue
+                                    {...item}
+                                    chats={chats}
+                                    setChats={setChats}
+                                    refresh={() => getChatMessage()}
+                                />
                                 <Popconfirm
                                     title="删除会话"
                                     description="是否确定删除会话？"
                                     onConfirm={(e) => {
-                                        e?.preventDefault();
-                                        e?.stopPropagation();
+                                        delDialogue(item);
+                                        // e?.preventDefault();
+                                        // e?.stopPropagation();
                                         // chatAsync.fetchDelUserMessages({ id: item.id, type: 'del' });
                                     }}
                                     onCancel={(e) => {
@@ -306,7 +359,7 @@ export default function ChatPage() {
                                 // scrollToBottomIfAtBottom();
                             }}
                             clearMessage={() => {
-                                chatAsync.fetchDelUserMessages({ id: selectChatId, type: 'clear' });
+                                // chatAsync.fetchDelUserMessages({ id: selectChatId, type: 'clear' });
                             }}
                             onStopFetch={() => {
                                 // 结束

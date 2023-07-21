@@ -1,6 +1,4 @@
-import { delUserMessages, getUserMessages, createDialogue } from '@/request/api';
-import chatStore from './slice';
-import async from '../draw/async';
+import { getUserMessages, createDialogue, delUserMessages, editDialogueTitle } from '@/request/api';
 
 function convertChatInfos(data: Record<string, any>) {
     return data.map((item: Record<string, any>) => {
@@ -34,21 +32,21 @@ async function fetchChatMessages() {
     }
 }
 
-async function fetchDelUserMessages(params: { id?: string | number; type: string }) {
-    const res = await delUserMessages({ chatId: params.id });
+// async function fetchDelUserMessages(params: { id?: string | number; type: string }) {
+//     const res = await delUserMessages({ chatId: params.id });
 
-    if (!res.code) {
-        if (params.type === 'clear' && params.id) {
-            chatStore.getState().clearChatMessage(params.id);
-        } else if (params.type === 'del' && params.id) {
-            chatStore.getState().delChat(params.id);
-        } else if (params.type === 'delAll') {
-            chatStore.getState().clearChats();
-        }
-    }
+//     // if (!res.code) {
+//     //     if (params.type === 'clear' && params.id) {
+//     //         chatStore.getState().clearChatMessage(params.id);
+//     //     } else if (params.type === 'del' && params.id) {
+//     //         chatStore.getState().delChat(params.id);
+//     //     } else if (params.type === 'delAll') {
+//     //         chatStore.getState().clearChats();
+//     //     }
+//     // }
 
-    return res;
-}
+//     return res;
+// }
 
 //  点击发送
 async function sendChatMessages(params: { chatName?: string; message?: object; model?: string }) {
@@ -59,8 +57,28 @@ async function sendChatMessages(params: { chatName?: string; message?: object; m
     }
 }
 
+// 删除对话
+async function delUserDialogue(params: { id?: string | number; name: string }) {
+    const resp = await delUserMessages({ chatId: params.id, name: params.name });
+
+    if (resp.code && resp.code === 200) {
+        return resp?.data;
+    }
+}
+
+//  编辑对话标题
+async function editUserDialogueTitle(params: { chatId: string | number; name: string }) {
+    const resp = await editDialogueTitle(params);
+
+    if (resp.code && resp.code === 200) {
+        return resp?.data;
+    }
+}
+
 export default {
     fetchChatMessages,
-    fetchDelUserMessages,
-    sendChatMessages
+    // fetchDelUserMessages,
+    sendChatMessages,
+    delUserDialogue,
+    editUserDialogueTitle
 };

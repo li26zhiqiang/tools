@@ -1,10 +1,11 @@
 import styles from './index.module.less';
+import help from '../../assets/images/help.png';
 
 function Reminder() {
     const list = [
         {
             id: 'zhichangzhuli',
-            icon: 'https://p1.meituan.net/travelcube/ff6b82c66b420ca0867244eca69196a51213.png',
+            icon: <img src={help} />,
             name: '职场助理',
             desc: '作为手机斗地主游戏的产品经理，该如何做成国内爆款？'
         },

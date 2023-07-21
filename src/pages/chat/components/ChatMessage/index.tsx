@@ -15,17 +15,17 @@ const dropdownItems = [
         icon: <CopyOutlined />,
         label: '复制',
         key: 'copyout'
-    },
-    {
-        icon: <RedoOutlined />,
-        label: '重试',
-        key: 'refurbish'
-    },
-    {
-        icon: <DeleteOutlined />,
-        label: '删除',
-        key: 'delete'
     }
+    // {
+    //     icon: <RedoOutlined />,
+    //     label: '重试',
+    //     key: 'refurbish'
+    // },
+    // {
+    //     icon: <DeleteOutlined />,
+    //     label: '删除',
+    //     key: 'delete'
+    // }
 ];
 
 function screenDropdownItems(status: string, position: 'left' | 'right') {
