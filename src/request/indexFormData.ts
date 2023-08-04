@@ -26,26 +26,6 @@ const getBaseUrl = (url: string) => {
     return baseURL + url;
 };
 
-// 对Headers 进行一个变形
-function correctHeaders(
-    method = 'GET',
-    headers: HeadersInit & {
-        'Content-Type'?: string;
-    } = {}
-) {
-    if (headers['Content-Type'] === 'multipart/form-data') {
-        delete headers['Content-Type'];
-        return headers;
-    }
-    if ((method === 'GET' || method === 'DELETE') && !headers['Content-Type']) {
-        headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    }
-    if ((method === 'POST' || method === 'PUT') && !headers['Content-Type']) {
-        headers['Content-Type'] = 'application/json';
-    }
-    return headers;
-}
-
 // 判断是否为Object
 const isPlainObject = (obj: any) => {
     if (!obj || Object.prototype.toString.call(obj) !== '[object Object]' || obj instanceof FormData) {
@@ -135,8 +115,7 @@ const request = <T>(
         method: 'GET',
         // 请求控制器
         signal,
-        ...options,
-        headers: correctHeaders(options?.method, options?.headers)
+        ...options
     };
 
     // 导入请求拦截器
@@ -194,32 +173,6 @@ const request = <T>(
     return Promise.race([timeoutPromise(timeout), fetchPromise]);
 };
 
-const get = <T = unknown>(
-    url: string,
-    params: { [key: string]: any } | string = '',
-    headers?: HeadersInit,
-    config?: RequestConfig
-) => {
-    if (params && typeof params !== 'string' && isPlainObject(params)) {
-        const tempArray: string[] = [];
-        for (const item in params) {
-            if (item) {
-                tempArray.push(`${item}=${params[item]}`);
-            }
-        }
-        params = url.includes('?') ? tempArray.join('&') : `?${tempArray.join('&')}`;
-    }
-
-    return request<T>(
-        `${url}${params}`,
-        {
-            method: 'GET',
-            headers
-        },
-        config
-    );
-};
-
 const post = <T = unknown>(
     url: string,
     data?: { [key: string]: any } | string | any,
@@ -234,96 +187,15 @@ const post = <T = unknown>(
         url,
         {
             method: 'POST',
-            headers,
-            body: correctData
-        },
-        config
-    );
-};
-
-const put = <T = unknown>(
-    url: string,
-    data?: { [key: string]: any } | string | any,
-    headers?: HeadersInit,
-    config?: RequestConfig
-) => {
-    let correctData = data;
-    if (isPlainObject(data)) {
-        correctData = JSON.stringify(data);
-    }
-    return request<T>(
-        url,
-        {
-            method: 'PUT',
-            headers,
-            body: correctData
-        },
-        config
-    );
-};
-
-const del = <T = unknown>(
-    url: string,
-    params: { [key: string]: any } | string = '',
-    headers?: HeadersInit,
-    config?: RequestConfig
-) => {
-    if (params && typeof params !== 'string' && isPlainObject(params)) {
-        const tempArray: string[] = [];
-        for (const item in params) {
-            if (item) {
-                tempArray.push(`${item}=${params[item]}`);
-            }
-        }
-        params = url.includes('?') ? tempArray.join('&') : `?${tempArray.join('&')}`;
-    }
-
-    return request<T>(
-        `${url}${params}`,
-        {
-            method: 'DELETE',
-            headers
-        },
-        config
-    );
-};
-
-const postStreams = async <T>(
-    url: string,
-    data?: { [key: string]: any } | string | any,
-    o?: {
-        headers?: HeadersInit;
-        options?: { [key: string]: any };
-    }
-) => {
-    const baseUrl = getBaseUrl(url);
-    const options: { [key: string]: any } = interceptorsRequest({
-        url,
-        options: {
-            method: 'POST',
-            body: JSON.stringify(data),
-            headers: correctHeaders('POST', o?.headers),
-            ...o?.options
-        }
-    });
-    const response = await fetch(baseUrl, options);
-    if (response.headers.has('Content-Type') && response.headers.get('Content-Type')?.includes('application/json')) {
-        const responseJson = await interceptorsResponse<T>(
-            {
-                url,
-                options
+            headers: {
+                'Content-Type': 'multipart/form-data'
             },
-            response
-        );
-        return responseJson;
-    }
-    return response;
+            body: correctData
+        },
+        config
+    );
 };
 
 export default {
-    get,
-    post,
-    put,
-    del,
-    postStreams
+    post
 };

@@ -4,7 +4,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { ConfigProvider } from 'antd';
 import { HashRouter } from 'react-router-dom';
-
 import AppLayout from './pages/App';
 import Router from './routers/Router';
 import AuthRouter from './routers/authRouter';
@@ -12,6 +11,8 @@ import Global from './components/Global';
 import OpenAiLogo from './components/OpenAiLogo';
 import actions from './actions';
 import { ROOT_PATH } from '@utils/constants';
+import { getUserInfo } from './utils/actions';
+import { Provider } from './utils/commonContext';
 
 import '@/styles/global.less';
 import '@/styles/markdown.less';
@@ -23,38 +24,48 @@ function getSubRootContainer(container: any): Element {
     return container ? container.querySelector('#root_aitools') : document.querySelector('#root_aitools');
 }
 
-function renderApp(props: Record<string, any>) {
+async function renderApp(props: Record<string, any>) {
     const { container } = props;
     const dom = getSubRootContainer(container);
     rootNode = ReactDOM.createRoot(dom);
+    let menus = [];
+
+    let resp: any;
+    resp = await getUserInfo();
+
+    if (resp && resp.code === 200) {
+        menus = resp.data.menus || [];
+    }
 
     rootNode.render(
         <ConfigProvider theme={{ token: { colorPrimary: '#18b3b3' } }}>
-            <HashRouter>
-                <AuthRouter>
-                    <Global>
-                        <AppLayout>
-                            <React.Suspense
-                                fallback={
-                                    <div
-                                        style={{
-                                            width: '100vw',
-                                            height: '100vh',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center'
-                                        }}
-                                    >
-                                        <OpenAiLogo rotate width="3em" height="3em" />
-                                    </div>
-                                }
-                            >
-                                <Router />
-                            </React.Suspense>
-                        </AppLayout>
-                    </Global>
-                </AuthRouter>
-            </HashRouter>
+            <Provider value={menus}>
+                <HashRouter>
+                    <AuthRouter>
+                        <Global>
+                            <AppLayout>
+                                <React.Suspense
+                                    fallback={
+                                        <div
+                                            style={{
+                                                width: '100vw',
+                                                height: '100vh',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}
+                                        >
+                                            <OpenAiLogo rotate width="3em" height="3em" />
+                                        </div>
+                                    }
+                                >
+                                    <Router />
+                                </React.Suspense>
+                            </AppLayout>
+                        </Global>
+                    </AuthRouter>
+                </HashRouter>
+            </Provider>
         </ConfigProvider>
     );
 }

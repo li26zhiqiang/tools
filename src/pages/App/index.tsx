@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { PageContainer, ProLayout } from '@ant-design/pro-components';
-
 import defaultProps from './config';
 import { ReactComponent as OpenaiSvg } from '@/assets/images/openai.svg';
+import { CrownFilled, SmileFilled } from '@ant-design/icons';
 
 import './index.less';
 
@@ -21,12 +21,11 @@ export default (props: Record<string, any>) => {
         <div id="test-pro-layout" style={{ height: '100%' }}>
             <ProLayout
                 className={`app-container ${!window.__POWERED_BY_QIANKUN__ ? 'dev' : ''}`}
-                // prefixCls="my-prefix"
                 logo={<OpenaiSvg className="logo-icon" />}
                 layout="side"
                 navTheme="light"
                 contentWidth="Fluid"
-                {...defaultProps}
+                {...defaultProps()}
                 menuProps={{
                     selectedKeys,
                     onClick: ({ key }) => {

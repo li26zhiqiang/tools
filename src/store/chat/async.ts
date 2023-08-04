@@ -1,4 +1,11 @@
-import { getUserMessages, createDialogue, delUserMessages, editDialogueTitle } from '@/request/api';
+import {
+    updatePictureFun,
+    getUserMessages,
+    createDialogue,
+    delUserMessages,
+    editDialogueTitle,
+    editPicture
+} from '@/request/api';
 
 function convertChatInfos(data: Record<string, any>) {
     return data.map((item: Record<string, any>) => {
@@ -75,10 +82,30 @@ async function editUserDialogueTitle(params: { chatId: string | number; name: st
     }
 }
 
+//  获取图片
+async function getPicture(params: { prompt: string; imageNums: number; size: string }) {
+    const resp = await editPicture(params);
+
+    if (resp.code && resp.code === 200) {
+        return resp?.data;
+    }
+}
+
+//  编辑图片
+async function updatePicture(params: any) {
+    const resp = await updatePictureFun(params);
+
+    if (resp.code && resp.code === 200) {
+        return resp?.data;
+    }
+}
+
 export default {
     fetchChatMessages,
     // fetchDelUserMessages,
     sendChatMessages,
     delUserDialogue,
-    editUserDialogueTitle
+    editUserDialogueTitle,
+    getPicture,
+    updatePicture
 };

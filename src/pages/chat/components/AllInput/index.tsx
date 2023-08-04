@@ -1,6 +1,6 @@
 import { AutoComplete, Button, Input, Modal, message } from 'antd';
 import styles from './index.module.less';
-import { ClearOutlined, CloudDownloadOutlined, SyncOutlined } from '@ant-design/icons';
+import { ClearOutlined, SyncOutlined } from '@ant-design/icons';
 import { useMemo, useState } from 'react';
 import { promptStore } from '@/store';
 import html2canvas from 'html2canvas';

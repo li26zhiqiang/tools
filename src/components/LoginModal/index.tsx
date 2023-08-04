@@ -13,6 +13,7 @@ import { LoginForm, ProFormCaptcha, ProFormText } from '@ant-design/pro-form';
 import { Form, FormInstance, Modal, Space, Tabs } from 'antd';
 import { useState } from 'react';
 import { useNavigation, useLocation } from 'react-router-dom';
+import openailogo from '../../assets/images/openailogo.svg';
 
 type Props = {
     open: boolean;
@@ -37,7 +38,7 @@ export function LoginCard(props: { form: FormInstance<RequestLoginParams>; onSuc
     return (
         <LoginForm<RequestLoginParams>
             form={props.form}
-            logo="https://u1.dl0.cn/icon/openailogo.svg"
+            logo={openailogo}
             title=""
             subTitle="基于大语言模型的AI对话产品"
             actions={
@@ -48,8 +49,7 @@ export function LoginCard(props: { form: FormInstance<RequestLoginParams>; onSuc
                     }}
                 >
                     <p>
-                        登录即代表你同意 <a href="https://www.baidu.com/">《平台协议》</a>和
-                        <a href="https://www.baidu.com/">《隐私政策》</a>{' '}
+                        登录即代表你同意 <a>《平台协议》</a>和<a>《隐私政策》</a>{' '}
                     </p>
                 </div>
             }

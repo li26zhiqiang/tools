@@ -2,19 +2,20 @@ import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { Button, Modal, Popconfirm, Space, Tabs, Select, message } from 'antd';
 import styles from './index.module.less';
 import Layout from '@/components/Layout';
-import { CommentOutlined, DeleteOutlined, FormOutlined } from '@ant-design/icons';
+import { CommentOutlined, DeleteOutlined } from '@ant-design/icons';
 import { generateChatInfo } from '@/utils';
 import { chatAsync } from '@/store/async';
 import ChatMessage from './components/ChatMessage';
 import Reminder from '@/components/Reminder';
 import useMobile from '@/hooks/useMobile';
 import AllInput from './components/AllInput';
-import { ChatGpt, RequestChatOptions } from '@/types';
-import { chatStore, configStore, userStore } from '@/store';
+import { ChatGpt } from '@/types';
+import { configStore } from '@/store';
 import { generateUUID } from '@utils/generateUUID';
 import { cloneDeep } from 'lodash';
 import moment from 'moment';
 import EditDialogue from './components/EditDialogue';
+import DeleteDialogue from './components/DeleteDialogue';
 
 export default function ChatPage() {
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -215,20 +216,6 @@ export default function ChatPage() {
             getDialogue(value, 'old');
         }
     }
-
-    async function delDialogue(item: any) {
-        const param = {
-            id: item.id,
-            name: item.name
-        };
-
-        const resp = await chatAsync.delUserDialogue(param);
-
-        if (resp) {
-            getChatMessage();
-        }
-    }
-
     // 当前聊天记录
     const chatMessages = useMemo(() => {
         const chatList = chats.filter((c) => c.id === selectChatId);
@@ -290,29 +277,14 @@ export default function ChatPage() {
                                     setChats={setChats}
                                     refresh={() => getChatMessage()}
                                 />
-                                <Popconfirm
-                                    title="删除会话"
-                                    description="是否确定删除会话？"
-                                    onConfirm={(e) => {
-                                        delDialogue(item);
-                                        // e?.preventDefault();
-                                        // e?.stopPropagation();
-                                        // chatAsync.fetchDelUserMessages({ id: item.id, type: 'del' });
+                                <DeleteDialogue
+                                    {...{
+                                        item,
+                                        chats,
+                                        setChats,
+                                        refresh: () => getChatMessage()
                                     }}
-                                    onCancel={(e) => {
-                                        e?.preventDefault();
-                                        e?.stopPropagation();
-                                    }}
-                                    okText="Yes"
-                                    cancelText="No"
-                                >
-                                    <DeleteOutlined
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                        }}
-                                    />
-                                </Popconfirm>
+                                />
                             </div>
                         </div>
                     );
@@ -355,8 +327,8 @@ export default function ChatPage() {
                                 if (value.startsWith('/')) {
                                     return;
                                 }
+
                                 sendChatCompletions(value);
-                                // scrollToBottomIfAtBottom();
                             }}
                             clearMessage={() => {
                                 // chatAsync.fetchDelUserMessages({ id: selectChatId, type: 'clear' });

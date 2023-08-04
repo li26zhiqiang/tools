@@ -16,6 +16,7 @@ import {
     WithdrawalRecordInfo
 } from '@/types';
 import request from '.';
+import requestFormData from './indexFormData';
 import { formatTime } from '@/utils';
 import { TableData } from '@/types/admin';
 
@@ -129,22 +130,32 @@ export function postUserWithdrawal(params: WithdrawalRecordInfo) {
 
 // 消息列表
 export function getUserMessages() {
-    return request.get<Array<ChatsInfo>>('http://192.168.2.173:8201/tytech-admin/open-ai/chat/records');
+    return request.get<Array<ChatsInfo>>('/tytech-admin/open-ai/chat/records');
 }
 
 //  删除对话
 export function delUserMessages(params: { chatId?: string | number; name: string }) {
-    return request.del(`http://192.168.2.173:8201/tytech-admin/open-ai/chat/records/${params.chatId}`, {
+    return request.del(`/tytech-admin/open-ai/chat/records/${params.chatId}`, {
         name: params.name
     });
 }
 
 //  创建对话
 export function createDialogue(params: { chatName?: string; message?: object; model?: string }) {
-    return request.post('http://192.168.2.173:8201/tytech-admin/open-ai/chat', params);
+    return request.post('/tytech-admin/open-ai/chat', params);
 }
 
 //  编辑对话标题
 export function editDialogueTitle(params: { chatId: string | number; name: string }) {
-    return request.put(`http://192.168.2.173:8201/tytech-admin/open-ai/chat/${params.chatId}`, { name: params.name });
+    return request.put(`/tytech-admin/open-ai/chat/${params.chatId}`, { name: params.name });
+}
+
+//  绘制图片
+export function editPicture(params: { prompt: string; imageNums: number; size: string }) {
+    return request.post('/tytech-admin/open-ai/images/generations', params);
+}
+
+//  修改图片
+export function updatePictureFun(params: any) {
+    return requestFormData.post('/tytech-admin/open-ai/images/generations', params);
 }

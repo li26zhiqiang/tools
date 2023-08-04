@@ -1,51 +1,64 @@
+import React, { useContext } from 'react';
 import { CrownFilled, SmileFilled } from '@ant-design/icons';
+import commonContext from '@/utils/commonContext';
 
-export default {
-    title: 'AI神器',
-    fixSiderbar: true,
-    colorPrimary: '#18b3b3',
-    splitMenus: false,
-    fixedHeader: false,
-    // headerRender: false,
-    // footerRender: false,
-    // siderMenuType: 'sub',
-    siderWidth: 216,
-    token: {
-        bgLayout: '#ebeef5',
-        sider: {
-            colorTextMenuTitle: '#191919',
-            colorMenuBackground: '#ffffff',
-            colorMenuItemDivider: '#dfdfdf',
-            colorTextMenu: '#191919',
-            colorTextMenuSelected: '#18b3b3',
-            colorTextMenuActive: '#18b3b3',
-            colorTextMenuItemHover: '#18b3b3',
-            colorBgMenuItemHover: '#e1f2ef',
-            colorBgMenuItemSelected: '#e1f2ef'
+export default function DefaultProps() {
+    let consumer: any;
+    consumer = useContext(commonContext);
+    const allowKeyList = consumer.map((item: any) => item.name);
+
+    const router = [
+        {
+            path: '/talk',
+            name: '对话',
+            pathName: 'talk',
+            icon: <SmileFilled />
         },
-        pageContainer: {
-            paddingBlockPageContainerContent: 16,
-            paddingInlinePageContainerContent: 16,
-            colorBgPageContainer: '#ebeef5',
-            colorBgPageContainerFixed: '#ebeef5'
+        {
+            path: '/draw',
+            name: '绘画',
+            pathName: 'draw',
+            icon: <CrownFilled />
         }
-    },
-    location: {
-        pathname: '/'
-    },
-    route: {
-        path: '/',
-        routes: [
-            {
-                path: '/talk',
-                name: '对话',
-                icon: <SmileFilled />
+    ];
+
+    const routeList = router.filter((item) => {
+        return allowKeyList.includes(item.pathName);
+    });
+
+    return {
+        title: 'AI神器',
+        fixSiderbar: true,
+        colorPrimary: '#18b3b3',
+        splitMenus: false,
+        fixedHeader: false,
+        siderWidth: 216,
+        token: {
+            bgLayout: '#ebeef5',
+            sider: {
+                colorTextMenuTitle: '#191919',
+                colorMenuBackground: '#ffffff',
+                colorMenuItemDivider: '#dfdfdf',
+                colorTextMenu: '#191919',
+                colorTextMenuSelected: '#18b3b3',
+                colorTextMenuActive: '#18b3b3',
+                colorTextMenuItemHover: '#18b3b3',
+                colorBgMenuItemHover: '#e1f2ef',
+                colorBgMenuItemSelected: '#e1f2ef'
             },
-            {
-                path: '/draw',
-                name: '绘画',
-                icon: <CrownFilled />
+            pageContainer: {
+                paddingBlockPageContainerContent: 16,
+                paddingInlinePageContainerContent: 16,
+                colorBgPageContainer: '#ebeef5',
+                colorBgPageContainerFixed: '#ebeef5'
             }
-        ]
-    }
-};
+        },
+        location: {
+            pathname: '/'
+        },
+        route: {
+            path: '/',
+            routes: routeList
+        }
+    };
+}

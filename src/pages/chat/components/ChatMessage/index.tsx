@@ -2,13 +2,15 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { copyToClipboard, joinTrim } from '@/utils';
 import styles from './index.module.less';
 import OpenAiLogo from '@/components/OpenAiLogo';
-import { Space, Popconfirm, message, Dropdown } from 'antd';
-
+import { message, Dropdown } from 'antd';
 import MarkdownIt from 'markdown-it';
 import mdKatex from '@traptitech/markdown-it-katex';
 import mila from 'markdown-it-link-attributes';
 import hljs from 'highlight.js';
-import { CopyOutlined, DeleteOutlined, MoreOutlined, RedoOutlined } from '@ant-design/icons';
+import { CopyOutlined, MoreOutlined } from '@ant-design/icons';
+import user from '@/assets/images/user.png';
+import chatGpt4 from '@/assets/images/chatGpt4.png';
+import OpenAi from '@/assets/images/openailogo.svg';
 
 const dropdownItems = [
     {
@@ -16,16 +18,6 @@ const dropdownItems = [
         label: '复制',
         key: 'copyout'
     }
-    // {
-    //     icon: <RedoOutlined />,
-    //     label: '重试',
-    //     key: 'refurbish'
-    // },
-    // {
-    //     icon: <DeleteOutlined />,
-    //     label: '删除',
-    //     key: 'delete'
-    // }
 ];
 
 function screenDropdownItems(status: string, position: 'left' | 'right') {
@@ -174,16 +166,10 @@ function ChatMessage({
                 justifyContent: position === 'right' ? 'flex-end' : 'flex-start'
             }}
         >
-            {/* https://u1.dl0.cn/icon/chat_gpt_3.png */}
-            {/* https://u1.dl0.cn/icon/chat_gpt_4.png */}
-            {/* https://u1.dl0.cn/icon/openailogo.svg */}
             {position === 'left' &&
                 chatAvatar({
                     style: { marginRight: 8 },
-                    icon:
-                        model && model.indexOf('gpt-4') !== -1
-                            ? 'https://u1.dl0.cn/icon/chat_gpt_4.png'
-                            : 'https://u1.dl0.cn/icon/openailogo.svg'
+                    icon: model && model.indexOf('gpt-4') !== -1 ? chatGpt4 : OpenAi
                 })}
             <div className={styles.chatMessage_content}>
                 <span
@@ -242,7 +228,7 @@ function ChatMessage({
             {position === 'right' &&
                 chatAvatar({
                     style: { marginLeft: 8 },
-                    icon: 'https://u1.dl0.cn/icon/1682426702646avatarf3db669b024fad66-1930929abe2847093.png'
+                    icon: user
                 })}
         </div>
     );

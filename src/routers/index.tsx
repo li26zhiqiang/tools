@@ -13,6 +13,7 @@ export interface RouteOptions extends Omit<Omit<RouteObject, 'children'>, 'index
     index?: boolean;
     children?: RouteOptions[];
     configure?: ConfigureType;
+    name?: any;
 }
 
 const ChatPage = React.lazy(() => import('@/pages/chat'));
@@ -45,11 +46,13 @@ export const webRouter: RouteOptions[] = [
     {
         id: 'default',
         path: '/',
+        name: 'default',
         element: <Navigate to="/talk" />
     },
     {
         id: 'ChatPage',
         path: '/talk',
+        name: 'talk',
         element: <ChatPage />,
         children: [],
         configure: {
@@ -60,37 +63,8 @@ export const webRouter: RouteOptions[] = [
     {
         id: 'DrawPage',
         path: '/draw',
+        name: 'draw',
         element: <DrawPage />,
-        children: [],
-        configure: {
-            verifToken: false,
-            role: ['user', 'administrator']
-        }
-    },
-    {
-        id: 'ShopPage',
-        path: '/shop',
-        element: <ShopPage />,
-        children: [],
-        configure: {
-            verifToken: true,
-            role: ['user', 'administrator']
-        }
-    },
-    {
-        id: 'UserPage',
-        path: '/user',
-        element: <UserPage />,
-        children: [],
-        configure: {
-            verifToken: true,
-            role: ['user', 'administrator']
-        }
-    },
-    {
-        id: 'LoginPage',
-        path: '/login',
-        element: <LoginPage />,
         children: [],
         configure: {
             verifToken: false,
@@ -100,6 +74,7 @@ export const webRouter: RouteOptions[] = [
     {
         id: 'ResultPage',
         path: '/result',
+        name: 'result',
         element: <ResultPage />,
         children: [],
         configure: {
@@ -110,6 +85,7 @@ export const webRouter: RouteOptions[] = [
     {
         id: 'Page404',
         path: '/404',
+        name: 'notFount',
         element: <Page404 />,
         children: [],
         configure: {
@@ -120,6 +96,7 @@ export const webRouter: RouteOptions[] = [
     {
         id: 'Page404',
         path: '*',
+        name: 'notFount',
         element: <Page404 />,
         children: [],
         configure: {
