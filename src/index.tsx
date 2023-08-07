@@ -7,7 +7,6 @@ import { HashRouter } from 'react-router-dom';
 import AppLayout from './pages/App';
 import Router from './routers/Router';
 import AuthRouter from './routers/authRouter';
-import Global from './components/Global';
 import OpenAiLogo from './components/OpenAiLogo';
 import actions from './actions';
 import { ROOT_PATH } from '@utils/constants';
@@ -42,27 +41,25 @@ async function renderApp(props: Record<string, any>) {
             <Provider value={menus}>
                 <HashRouter>
                     <AuthRouter>
-                        <Global>
-                            <AppLayout>
-                                <React.Suspense
-                                    fallback={
-                                        <div
-                                            style={{
-                                                width: '100vw',
-                                                height: '100vh',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}
-                                        >
-                                            <OpenAiLogo rotate width="3em" height="3em" />
-                                        </div>
-                                    }
-                                >
-                                    <Router />
-                                </React.Suspense>
-                            </AppLayout>
-                        </Global>
+                        <AppLayout>
+                            <React.Suspense
+                                fallback={
+                                    <div
+                                        style={{
+                                            width: '100vw',
+                                            height: '100vh',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}
+                                    >
+                                        <OpenAiLogo rotate width="3em" height="3em" />
+                                    </div>
+                                }
+                            >
+                                <Router />
+                            </React.Suspense>
+                        </AppLayout>
                     </AuthRouter>
                 </HashRouter>
             </Provider>

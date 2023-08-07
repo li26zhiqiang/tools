@@ -25,6 +25,7 @@ export default function ChatPage() {
     const [selectChatId, setSelectChatId] = useState(info.id);
     const [fetchController, setFetchController] = useState(null);
     const { config, models, changeConfig, setConfigModal } = configStore();
+    const [scrollTop, setScrollTop] = useState(0);
 
     // 创建对话按钮
     const CreateChat = () => {
@@ -227,6 +228,17 @@ export default function ChatPage() {
         getChatMessage();
     }, []);
 
+    useEffect(() => {
+        const topValue = scrollRef?.current?.clientHeight || 0;
+        setScrollTop(topValue);
+    }, [scrollRef?.current?.clientHeight]);
+
+    if (scrollRef?.current) {
+        console.log('111111111111', scrollTop);
+        scrollRef.current.scrollTop = scrollTop;
+        console.log('scrollRef.current.scrollTop', scrollRef.current.scrollTop);
+    }
+
     return (
         <div className={styles.chatPage}>
             <Layout
@@ -291,8 +303,8 @@ export default function ChatPage() {
                 }}
             >
                 <div className={styles.chatPage_container}>
-                    <div ref={scrollRef} className={styles.chatPage_container_one}>
-                        <div id="image-wrapper">
+                    <div className={styles.chatPage_container_one}>
+                        <div id="image-wrapper" ref={scrollRef}>
                             {chatMessages.map((item) => {
                                 return (
                                     <ChatMessage

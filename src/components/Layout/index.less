@@ -2,7 +2,11 @@
     padding: 20px;
     background: #fff;
     border-radius: 4px;
-
+    position: fixed;
+    height: calc(100% - 60px);
+    inset-block: 60px;
+    margin-right: 16px;
+    width: -webkit-fill-available;
     .ant-layout-sider {
         .ant-layout-sider-children {
             border-right: 3px solid #efefef;
@@ -22,5 +26,8 @@
                 padding: 0px !important;
             }
         }
+    }
+    .ant-layout-has-sider {
+        height: calc(100% - 48px);
     }
 }

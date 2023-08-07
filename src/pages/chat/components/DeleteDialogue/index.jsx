@@ -4,7 +4,23 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { chatAsync } from '@/store/async';
 
 export default function DeleteDialogue(props) {
+    function resetChats(chats, setChats, item) {
+        const arr = chats.filter((chat) => {
+            return chat.id !== item.id;
+        });
+
+        setChats(arr);
+    }
+
     async function delDialogue() {
+        const { setChats, chats, item } = props;
+
+        //  判断是新建对话还是老对话
+        if (props.item.id.includes('new-dialogue')) {
+            resetChats(chats, setChats, item);
+            return;
+        }
+
         const param = {
             id: props.item.id,
             name: props.item.name

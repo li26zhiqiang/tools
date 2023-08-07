@@ -107,6 +107,7 @@ function ChatMessage({
         linkify: true,
         highlight(code: string, language: string) {
             const validLang = Boolean(language && hljs.getLanguage(language));
+
             if (validLang) {
                 const lang = language ?? '';
                 return highlightBlock(hljs.highlight(code, { language: lang }).value, lang, code);
@@ -225,6 +226,7 @@ function ChatMessage({
                     </div>
                 </div>
             </div>
+
             {position === 'right' &&
                 chatAvatar({
                     style: { marginLeft: 8 },

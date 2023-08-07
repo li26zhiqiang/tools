@@ -71,28 +71,6 @@ function AllInput(props: Props) {
 
     return (
         <div className={styles.allInput}>
-            {/* {bodyResize.width > 800 && (
-                <div
-                    className={styles.allInput_icon}
-                    onClick={() => {
-                        setDownloadModal((d) => ({ ...d, open: true }));
-                    }}
-                >
-                    <CloudDownloadOutlined />
-                </div>
-            )} */}
-            <div
-                className={styles.allInput_icon}
-                onClick={() => {
-                    if (!props.disabled) {
-                        props?.clearMessage?.();
-                    } else {
-                        message.warning('请结束回答后在操作');
-                    }
-                }}
-            >
-                <ClearOutlined />
-            </div>
             <AutoComplete
                 value={prompt}
                 options={searchOptions}
@@ -101,19 +79,13 @@ function AllInput(props: Props) {
                     maxWidth: 800
                 }}
                 onSelect={(value) => {
-                    // 这里选择后直接发送
-                    //   props?.onSend?.(value)
-                    // 并且将输入框清空
-                    // 修改为选中放置在输入框内
                     setPrompt(value);
                 }}
             >
                 <Input.TextArea
                     value={prompt}
-                    // showCount
                     size="large"
                     placeholder="问点什么吧..."
-                    // (Shift + Enter = 换行)
                     autoSize={{
                         maxRows: 4
                     }}
