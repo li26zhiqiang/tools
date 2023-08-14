@@ -242,7 +242,6 @@ function RoleLocal() {
                             throw Error('数据格式错误2');
                         }
                     } catch (error) {
-                        console.log(error);
                         message.error('数据格式错误 🙅');
                         return false;
                     }

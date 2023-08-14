@@ -2,13 +2,26 @@ import React from 'react';
 import { Popconfirm } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import { chatAsync } from '@/store/async';
+import { generateUUID } from '@utils/generateUUID';
 
 export default function DeleteDialogue(props) {
     function resetChats(chats, setChats, item) {
-        const arr = chats.filter((chat) => {
+        let arr = chats.filter((chat) => {
             return chat.id !== item.id;
         });
 
+        if (arr.length === 0) {
+            const uuid = generateUUID();
+            arr = [
+                {
+                    id: `new-dialogue-${uuid}`,
+                    name: '新建对话',
+                    path: `new-dialogue-${uuid}`,
+                    data: []
+                }
+            ];
+            props.setSelectChatId(`new-dialogue-${uuid}`);
+        }
         setChats(arr);
     }
 

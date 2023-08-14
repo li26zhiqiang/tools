@@ -205,7 +205,6 @@ function ProductPage() {
                 onFinish={async (values) => {
                     const data = { ...values };
                     if (edidInfoModal.info?.id) {
-                        console.log('进入编辑');
                         const res = await putAdminProduct({
                             ...data,
                             id: edidInfoModal.info?.id

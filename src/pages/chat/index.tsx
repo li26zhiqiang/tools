@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
-import { Button, Modal, Popconfirm, Space, Tabs, Select, message } from 'antd';
+import useSmoothScroll from 'react-smooth-scroll-hook';
+import { cloneDeep } from 'lodash';
+import moment from 'moment';
 import styles from './index.module.less';
 import Layout from '@/components/Layout';
-import { CommentOutlined, DeleteOutlined } from '@ant-design/icons';
-import { generateChatInfo } from '@/utils';
+import { CommentOutlined } from '@ant-design/icons';
 import { chatAsync } from '@/store/async';
 import ChatMessage from './components/ChatMessage';
 import Reminder from '@/components/Reminder';
@@ -12,51 +13,30 @@ import AllInput from './components/AllInput';
 import { ChatGpt } from '@/types';
 import { configStore } from '@/store';
 import { generateUUID } from '@utils/generateUUID';
-import { cloneDeep } from 'lodash';
-import moment from 'moment';
 import EditDialogue from './components/EditDialogue';
 import DeleteDialogue from './components/DeleteDialogue';
+import CreateChat from './components/CreateChat';
+import SelectGPTType from './components/SelectGPTType';
 
 export default function ChatPage() {
     const scrollRef = useRef<HTMLDivElement>(null);
+    const viewRef = useRef<HTMLDivElement>(null);
     const isMobile = useMobile();
-    const info = generateChatInfo();
-    const [chats, setChats] = useState([info]);
-    const [selectChatId, setSelectChatId] = useState(info.id);
-    const [fetchController, setFetchController] = useState(null);
+    const [chats, setChats] = useState<any>([]);
+    const [selectChatId, setSelectChatId] = useState<any>(null);
+    const [fetchController, setFetchController] = useState<any>(null);
     const { config, models, changeConfig, setConfigModal } = configStore();
-    const [scrollTop, setScrollTop] = useState(0);
+    const [scrollItem, setScrollItem] = useState<any>(null);
+    const [containerOneView, setContainerOneView] = useState(300);
+    const [gptType, setGptType] = useState<any>(null);
 
-    // 创建对话按钮
-    const CreateChat = () => {
-        return (
-            <Button
-                block
-                type="dashed"
-                style={{
-                    marginBottom: 6,
-                    marginLeft: 0,
-                    marginRight: 0
-                }}
-                onClick={() => {
-                    const arr = cloneDeep(chats);
-                    const uuid = generateUUID();
-                    arr.unshift({
-                        id: `new-dialogue-${uuid}`,
-                        name: '新建对话',
-                        path: `new-dialogue-${uuid}`,
-                        data: []
-                    });
+    const { scrollTo } = useSmoothScroll({
+        ref: scrollRef,
+        speed: 300,
+        direction: 'y'
+    });
 
-                    setChats(arr);
-                    setSelectChatId(`new-dialogue-${uuid}`);
-                }}
-            >
-                新建对话
-            </Button>
-        );
-    };
-
+    //  刷新chats
     async function getChatMessage() {
         const resp = await chatAsync.fetchChatMessages();
 
@@ -84,10 +64,24 @@ export default function ChatPage() {
             });
 
             if (arr.length > 0) {
-                setSelectChatId(arr[0]?.id);
+                const id = arr[0]?.id;
+                setSelectChatId(id);
+                commonSetScroll(arr, id);
             }
 
             setChats(arr);
+        } else if (resp && resp.length === 0) {
+            const uuid = generateUUID();
+            setScrollItem(null);
+            setChats([
+                {
+                    id: `new-dialogue-${uuid}`,
+                    name: '新建对话',
+                    path: `new-dialogue-${uuid}`,
+                    data: []
+                }
+            ]);
+            setSelectChatId(`new-dialogue-${uuid}`);
         }
     }
 
@@ -131,7 +125,7 @@ export default function ChatPage() {
 
     async function getDialogue(value: string, type: string) {
         let assistantId: any = null;
-        const chatArr = cloneDeep(chats).map((item) => {
+        const chatArr = cloneDeep(chats).map((item: any) => {
             let timestamp = moment().locale('zh-cn').format('YYYY-MM-DD HH:mm:ss');
 
             if (type === 'new' && item.id === selectChatId) {
@@ -149,12 +143,13 @@ export default function ChatPage() {
             return item;
         });
 
+        commonSetScroll(chatArr, null);
         setChats(chatArr);
-
-        const dialogue = chatArr.filter((item) => item.id === selectChatId)[0];
+        setFetchController(true);
+        const dialogue = chatArr.filter((item: any) => item.id === selectChatId)[0];
         const params = {
             message: { role: 'user', content: value },
-            model: config.model
+            model: gptType
         };
 
         if (type === 'new') {
@@ -166,9 +161,10 @@ export default function ChatPage() {
         let resp: any = {};
         resp = await chatAsync.sendChatMessages(params);
 
+        setFetchController(false);
         if (resp) {
             //  如果是新对话
-            const arr = chatArr.map((item, index) => {
+            const arr = chatArr.map((item: any, index: any) => {
                 let timestamp = moment().locale('zh-cn').format('YYYY-MM-DD HH:mm:ss');
 
                 if (item.id === selectChatId) {
@@ -177,7 +173,7 @@ export default function ChatPage() {
                         item.path = resp.chatId;
                     }
 
-                    item.data = cloneDeep(item.data).map((dialogueRecord) => {
+                    item.data = cloneDeep(item.data).map((dialogueRecord: any) => {
                         if (dialogueRecord.id === assistantId) {
                             return {
                                 dateTime: timestamp,
@@ -199,14 +195,16 @@ export default function ChatPage() {
                 }
                 return item;
             });
+
             setSelectChatId(resp.chatId);
+            commonSetScroll(arr, null);
             setChats(arr);
         }
     }
 
     // 对话
     async function sendChatCompletions(value: string, refurbishOptions?: ChatGpt) {
-        const dialogue = chats.filter((c) => c.id === selectChatId)[0];
+        const dialogue = chats.filter((c: any) => c.id === selectChatId)[0];
 
         //  判断，新建对话---里面是否有
         const isNewDialogue = dialogue.id.includes('new-dialogue');
@@ -217,51 +215,46 @@ export default function ChatPage() {
             getDialogue(value, 'old');
         }
     }
+
     // 当前聊天记录
     const chatMessages = useMemo(() => {
-        const chatList = chats.filter((c) => c.id === selectChatId);
+        const chatList = chats.filter((c: any) => c.id === selectChatId);
 
         return chatList.length <= 0 ? [] : chatList[0].data;
     }, [selectChatId, chats]);
+
+    function commonSetScroll(arr: any, id: any) {
+        const selectTalkId = id || selectChatId;
+        const selectItem = arr.filter((item: any) => item.id === selectTalkId);
+
+        if (selectItem.length > 0 && selectItem[0].data && selectItem[0].data.length > 0) {
+            setScrollItem(`#item-${selectItem[0].data.length - 1}`);
+        }
+    }
 
     useEffect(() => {
         getChatMessage();
     }, []);
 
     useEffect(() => {
-        const topValue = scrollRef?.current?.clientHeight || 0;
-        setScrollTop(topValue);
-    }, [scrollRef?.current?.clientHeight]);
+        if (scrollItem) {
+            scrollTo(`${scrollItem}`);
+        }
+    }, [scrollItem, selectChatId]);
 
-    if (scrollRef?.current) {
-        console.log('111111111111', scrollTop);
-        scrollRef.current.scrollTop = scrollTop;
-        console.log('scrollRef.current.scrollTop', scrollRef.current.scrollTop);
-    }
+    useEffect(() => {
+        if (viewRef?.current) {
+            setContainerOneView(viewRef.current.offsetHeight - 80);
+        }
+    }, [viewRef]);
 
     return (
         <div className={styles.chatPage}>
             <Layout
-                menuExtraRender={() => <CreateChat />}
+                menuExtraRender={() => <CreateChat {...{ setChats, setSelectChatId, chats, getChatMessage }} />}
                 route={{ path: '/', routes: chats }}
                 menuFooterRender={(props) => {
-                    return (
-                        <Space direction="vertical" style={{ width: '100%' }}>
-                            <Select
-                                size="middle"
-                                style={{ width: '100%' }}
-                                defaultValue={config.model}
-                                value={config.model}
-                                options={models.map((m) => ({ ...m, label: 'AI模型: ' + m.label }))}
-                                onChange={(e) => {
-                                    changeConfig({
-                                        ...config,
-                                        model: e.toString()
-                                    });
-                                }}
-                            />
-                        </Space>
-                    );
+                    return <SelectGPTType {...{ gptType, setGptType }} />;
                 }}
                 menuProps={{
                     onClick: (r) => {
@@ -294,6 +287,7 @@ export default function ChatPage() {
                                         item,
                                         chats,
                                         setChats,
+                                        setSelectChatId,
                                         refresh: () => getChatMessage()
                                     }}
                                 />
@@ -303,24 +297,27 @@ export default function ChatPage() {
                 }}
             >
                 <div className={styles.chatPage_container}>
-                    <div className={styles.chatPage_container_one}>
-                        <div id="image-wrapper" ref={scrollRef}>
-                            {chatMessages.map((item) => {
+                    <div className={styles.chatPage_container_one} ref={viewRef}>
+                        <div
+                            id="image-wrapper"
+                            style={{
+                                overflowY: 'scroll',
+                                maxHeight: `${containerOneView}px`
+                            }}
+                            ref={scrollRef}
+                        >
+                            {chatMessages.map((item: any, index: any) => {
                                 return (
-                                    <ChatMessage
-                                        key={item.dateTime + item.role + item.text}
-                                        position={item.role === 'user' ? 'right' : 'left'}
-                                        status={item.status}
-                                        content={item.text}
-                                        time={item.dateTime}
-                                        model={item.requestOptions.options?.model}
-                                        onDelChatMessage={() => {
-                                            // delChatMessage(selectChatId, item.id);
-                                        }}
-                                        onRefurbishChatMessage={() => {
-                                            // sendChatCompletions(item.requestOptions.prompt, item);
-                                        }}
-                                    />
+                                    <div id={`item-${index}`} key={index}>
+                                        <ChatMessage
+                                            key={item.dateTime + item.role + item.text}
+                                            position={item.role === 'user' ? 'right' : 'left'}
+                                            status={item.status}
+                                            content={item.text}
+                                            time={item.dateTime}
+                                            model={item.requestOptions.options?.model}
+                                        />
+                                    </div>
                                 );
                             })}
                             {chatMessages.length <= 0 && <Reminder />}
@@ -341,16 +338,6 @@ export default function ChatPage() {
                                 }
 
                                 sendChatCompletions(value);
-                            }}
-                            clearMessage={() => {
-                                // chatAsync.fetchDelUserMessages({ id: selectChatId, type: 'clear' });
-                            }}
-                            onStopFetch={() => {
-                                // 结束
-                                // setFetchController((c) => {
-                                //     c?.abort();
-                                //     return null;
-                                // });
                             }}
                         />
                     </div>

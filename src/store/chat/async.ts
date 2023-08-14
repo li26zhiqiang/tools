@@ -4,7 +4,10 @@ import {
     createDialogue,
     delUserMessages,
     editDialogueTitle,
-    editPicture
+    editPicture,
+    newDialogueFun,
+    getUserQuotaFun,
+    historyPicFun
 } from '@/request/api';
 
 function convertChatInfos(data: Record<string, any>) {
@@ -100,7 +103,38 @@ async function updatePicture(params: any) {
     }
 }
 
+//  创建对话
+async function newDialogue(params: any) {
+    const resp = await newDialogueFun(params);
+
+    if (resp.code && resp.code === 200) {
+        return resp?.data;
+    }
+}
+
+//  获取用户当前配额
+async function getUserQuota() {
+    const resp = await getUserQuotaFun();
+
+    if (resp.code && resp.code === 200) {
+        return resp?.data;
+    }
+}
+
+//  获取用户历史图片
+async function getUserHistoryPic() {
+    const resp = await historyPicFun();
+
+    if (resp.code && resp.code === 200) {
+        return resp?.data;
+    }
+}
+
 export default {
+    getUserHistoryPic,
+    getUserQuota,
+    newDialogue,
+    createDialogue,
     fetchChatMessages,
     // fetchDelUserMessages,
     sendChatMessages,

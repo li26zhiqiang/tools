@@ -105,34 +105,18 @@ function AllInput(props: Props) {
                     }}
                 />
             </AutoComplete>
-            {props.disabled ? (
-                <Button
-                    className={styles.allInput_button}
-                    type="primary"
-                    size="large"
-                    ghost
-                    danger
-                    disabled={!props.disabled}
-                    onClick={() => {
-                        props.onStopFetch?.();
-                    }}
-                >
-                    <SyncOutlined spin /> 停止回答 🤚
-                </Button>
-            ) : (
-                <Button
-                    className={styles.allInput_button}
-                    type="primary"
-                    size="large"
-                    disabled={!prompt || props.disabled}
-                    onClick={() => {
-                        props?.onSend?.(prompt);
-                        setPrompt('');
-                    }}
-                >
-                    发送
-                </Button>
-            )}
+            <Button
+                className={styles.allInput_button}
+                type="primary"
+                size="large"
+                disabled={!prompt || props.disabled}
+                onClick={() => {
+                    props?.onSend?.(prompt);
+                    setPrompt('');
+                }}
+            >
+                发送
+            </Button>
 
             <Modal
                 title="保存当前对话记录"

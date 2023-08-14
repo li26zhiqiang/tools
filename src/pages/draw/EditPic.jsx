@@ -45,7 +45,8 @@ export default function EditPic(props) {
 
     return (
         <Button
-            className={styles.drawPage_edit_config_input_buttons}
+            className={styles.drawPage_edit_img_button}
+            type={'primary'}
             loading={drawResultData.loading}
             onClick={editPicture}
         >

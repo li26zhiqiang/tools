@@ -159,3 +159,18 @@ export function editPicture(params: { prompt: string; imageNums: number; size: s
 export function updatePictureFun(params: any) {
     return requestFormData.post('/tytech-admin/open-ai/images/generations', params);
 }
+
+//  创建对话
+export function newDialogueFun(params: any) {
+    return request.post('/tytech-admin/open-ai/chat/completion', params);
+}
+
+//  获取用户配额
+export function getUserQuotaFun() {
+    return request.get('/tytech-admin/open-ai/chat/quota');
+}
+
+//  获取历史图片
+export function historyPicFun() {
+    return request.get('/tytech-admin/open-ai/chat/history/pic');
+}

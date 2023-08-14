@@ -1,55 +1,55 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: console-aitools
-  labels:
-    run: console-aitools
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      run: console-aitools
-  template:
-    metadata:
-      labels:
+    name: console-aitools
+    labels:
         run: console-aitools
-    spec:
-      containers:
-      - image: registry.cn-shenzhen.aliyuncs.com/salex/console-aitools:2023-07-15-17-47-49
-        name: console-aitools # 容器名称
-        ports:
-        - containerPort: 80
-          protocol: TCP
-      restartPolicy: Always
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            run: console-aitools
+    template:
+        metadata:
+            labels:
+                run: console-aitools
+        spec:
+            containers:
+                - image: registry.cn-shenzhen.aliyuncs.com/salex/console-aitools:2023-07-15-17-47-49
+                  name: console-aitools # 容器名称
+                  ports:
+                      - containerPort: 80
+                        protocol: TCP
+            restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: console-aitools
+    name: console-aitools
 spec:
-  ports:
-  - port: 80 #服务端口
-    protocol: TCP
-    targetPort: 80 #应用端口
-  selector:
-    run: console-aitools
-  sessionAffinity: None
-  type: NodePort
+    ports:
+        - port: 80 #服务端口
+          protocol: TCP
+          targetPort: 80 #应用端口
+    selector:
+        run: console-aitools
+    sessionAffinity: None
+    type: NodePort
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: console-aitools-ingress
+    name: console-aitools-ingress
 spec:
-  rules:
-  - host: console.tuohaixingpan.com
-    http:
-      paths:
-      # 老版本服务。
-      - path: /aitools
-        backend:
-          service: 
-            name: console-aitools
-            port:
-              number: 80
-        pathType: Prefix
+    rules:
+        - host: console.tuoyunai.com
+          http:
+              paths:
+                  # 老版本服务。
+                  - path: /aitools
+                    backend:
+                        service:
+                            name: console-aitools
+                            port:
+                                number: 80
+                    pathType: Prefix

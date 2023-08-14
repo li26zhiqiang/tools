@@ -120,7 +120,7 @@ const request = <T>(
     config?: RequestConfig
 ): Promise<ResponseData<T>> => {
     // 超时时间
-    const { timeout = 15000 } = config || {};
+    const { timeout = 120000 } = config || {};
     let timeoutId: string | number | NodeJS.Timeout | null | undefined = null;
 
     if (typeof url !== 'string') {
@@ -176,10 +176,12 @@ const request = <T>(
                 await resolve(response);
             })
             .catch(async (error) => {
+                console.log('err', error);
                 if (error.name === 'AbortError') {
                     // We know it's been canceled!
                     return;
                 }
+
                 const data = { code: 504, data: error, message: '网络异常，请稍后重新尝试。' };
                 await interceptorsErrorResponse(data);
                 await reject(data);
